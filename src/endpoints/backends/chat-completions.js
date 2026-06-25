@@ -94,6 +94,7 @@ const API_MINIMAX = 'https://api.minimax.io/v1';
 const API_MINIMAX_CN = 'https://api.minimaxi.com/v1';
 const API_OPENROUTER = 'https://openrouter.ai/api/v1';
 const API_WORKERS_AI = 'https://api.cloudflare.com/client/v4/accounts';
+const API_OPENGODE_GO = 'https://opencode.ai/zen/go/v1';
 
 /**
  * Module-scoped Claude caching configuration values.
@@ -1974,6 +1975,10 @@ router.post('/status', async function (request, statusResponse) {
                 console.error('Error fetching Cloudflare Workers AI models:', error);
                 return statusResponse.status(500).send({ error: true });
             }
+        } else if (request.body.chat_completion_source === CHAT_COMPLETION_SOURCES.OPENGODE_GO) {
+            apiUrl = API_OPENGODE_GO;
+            apiKey = readSecret(request.user.directories, SECRET_KEYS.OPENGODE_GO, request.body.secret_id);
+            headers = {};
         } else {
             console.warn('This chat completion source is not supported yet.');
             return statusResponse.status(400).send({ error: true });
@@ -2490,6 +2495,24 @@ router.post('/generate', async function (request, response) {
                 bodyParams['response_format'] = {
                     type: 'json_schema',
                     json_schema: request.body.json_schema.value,
+                };
+            }
+        } else if (request.body.chat_completion_source === CHAT_COMPLETION_SOURCES.OPENGODE_GO) {
+            apiUrl = API_OPENGODE_GO;
+            apiKey = readSecret(request.user.directories, SECRET_KEYS.OPENGODE_GO, request.body.secret_id);
+            headers = {};
+            bodyParams = {
+                seed: request.body.seed ?? undefined,
+            };
+            embedOpenRouterMedia(request.body.messages, { audio: true, video: false });
+            if (request.body.json_schema) {
+                bodyParams['response_format'] = {
+                    type: 'json_schema',
+                    json_schema: {
+                        name: request.body.json_schema.name,
+                        strict: request.body.json_schema.strict ?? true,
+                        schema: request.body.json_schema.value,
+                    },
                 };
             }
         } else {

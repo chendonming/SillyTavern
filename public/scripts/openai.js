@@ -199,6 +199,7 @@ export const chat_completion_sources = {
     SILICONFLOW: 'siliconflow',
     WORKERS_AI: 'workers_ai',
     MINIMAX: 'minimax',
+    OPENGODE_GO: 'opencode_go',
 };
 
 const character_names_behavior = {
@@ -350,6 +351,7 @@ export const settingsToUpdate = {
     zai_endpoint: ['#zai_endpoint', 'zai_endpoint', false, true],
     workers_ai_model: ['#model_workers_ai_select', 'workers_ai_model', false, true],
     workers_ai_account_id: ['#workers_ai_account_id', 'workers_ai_account_id', false, true],
+    opencode_go_model: ['#model_opencode_go_select', 'opencode_go_model', false, true],
     openai_max_context: ['#openai_max_context', 'openai_max_context', false, false],
     openai_max_tokens: ['#openai_max_tokens', 'openai_max_tokens', false, false],
     names_behavior: ['#names_behavior', 'names_behavior', false, false],
@@ -458,6 +460,7 @@ const default_settings = {
     zai_endpoint: ZAI_ENDPOINT.COMMON,
     workers_ai_model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
     workers_ai_account_id: '',
+    opencode_go_model: 'opencode-go/deepseek-v4-flash',
     azure_base_url: '',
     azure_deployment_name: '',
     azure_api_version: '2024-02-15-preview',
@@ -2381,6 +2384,42 @@ function saveModelList(data) {
         }
 
         $('#model_moonshot_select').val(oai_settings.moonshot_model).trigger('change');
+    }
+
+    if (oai_settings.chat_completion_source == chat_completion_sources.OPENGODE_GO) {
+        model_list = sortModelsBy(model_list, oai_settings.sort_models, chat_completion_sources.OPENGODE_GO);
+        // Collect static model options that are already in the HTML
+        const staticModels = [];
+        $('#model_opencode_go_select option').each(function () {
+            const val = $(this).val();
+            if (val) {
+                staticModels.push(val);
+            }
+        });
+
+        // Add dynamic models to the "Dynamic" optgroup
+        $('#opencode_go_dynamic_models').empty();
+        model_list.forEach((model) => {
+            if (!staticModels.includes(model.id)) {
+                $('#opencode_go_dynamic_models').append(
+                    $('<option>', { value: model.id, text: model.id }),
+                );
+            }
+        });
+
+        // Merge static models into model_list
+        staticModels.forEach(modelId => {
+            if (!model_list.some(model => model.id === modelId)) {
+                model_list.push({ id: modelId });
+            }
+        });
+
+        const selectedModel = model_list.find(model => model.id === oai_settings.opencode_go_model);
+        if (model_list.length > 0 && (!selectedModel || !oai_settings.opencode_go_model)) {
+            oai_settings.opencode_go_model = model_list[0].id;
+        }
+
+        $('#model_opencode_go_select').val(oai_settings.opencode_go_model).trigger('change');
     }
 }
 
@@ -5937,6 +5976,7 @@ async function onConnectButtonClick(e) {
         [chat_completion_sources.POLLINATIONS]: { key: SECRET_KEYS.POLLINATIONS, selector: '#api_key_pollinations', proxy: false },
         [chat_completion_sources.WORKERS_AI]: { key: SECRET_KEYS.WORKERS_AI, selector: '#api_key_workers_ai', proxy: false },
         [chat_completion_sources.MINIMAX]: { key: SECRET_KEYS.MINIMAX, selector: '#api_key_minimax', proxy: false },
+        [chat_completion_sources.OPENGODE_GO]: { key: SECRET_KEYS.OPENGODE_GO, selector: '#api_key_opencode_go', proxy: false },
     };
 
     // Vertex AI Express version - use API key
@@ -6030,6 +6070,8 @@ function toggleChatCompletionForms() {
         $('#model_zai_select').trigger('change');
     } else if (oai_settings.chat_completion_source == chat_completion_sources.WORKERS_AI) {
         $('#model_workers_ai_select').trigger('change');
+    } else if (oai_settings.chat_completion_source == chat_completion_sources.OPENGODE_GO) {
+        $('#model_opencode_go_select').trigger('change');
     }
 
     $('[data-source]').each(function () {
