@@ -1,0 +1,41 @@
+{
+  "skill_name": "sillytavern-character-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我生成一个SillyTavern角色卡，我想要一个温柔的御姐，黑长直，F罩杯，肤白貌美大长腿，被动型性格，NSFW的。再帮我也生成一个配套的用户人设卡。",
+      "expected_output": "生成前主动介绍了字段含义。JSON 文件：角色卡（含内嵌世界书）、独立世界书、用户人设。所有文件通过 JSON 格式验证。NSFW 内容包含性描写指引和禁写清单。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我写个SillyTavern角色。名字叫林汐，17岁，傲娇系高中生，短双马尾，贫乳，毒舌但内心善良。普通清水向，不要NSFW。",
+      "expected_output": "清水向 JSON 角色卡，无 NSFW 内容。system_prompt 无成人描写要求，mes_example 无不适宜内容。生成前主动解释了个字段含义才问需求。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我想在SillyTavern里加一个新角色，但不知道能定义到什么程度，你帮我看看能做些什么？",
+      "expected_output": "主动科普了角色卡的全部能力（8 个方面：形象、性格、场景、说话风格、世界观/世界书、NSFW、深度提示、用户人设），而不是直接问'你要什么角色'。然后逐步引导用户提供需求。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "什么是世界书？我的SillyTavern角色需要世界书吗？",
+      "expected_output": "解释了世界书的机制（关键词→触发→注入背景知识）、两种类型（constant vs selective）、以及什么情况下建议用世界书。没有说教语气，用通俗语言解释。",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "现有角色卡example/苏晚晴/苏晚晴.json，帮这个角色加一条世界书条目，关于她喜欢的食物和烹饪习惯的。加上概率触发和粘性功能。",
+      "expected_output": "更新后的苏晚晴.json，character_book.entries 新增一条条目。包含 probability+useProbability 和 sticky 字段。JSON 格式合法。",
+      "files": ["example/苏晚晴/苏晚晴.json"]
+    },
+    {
+      "id": 6,
+      "prompt": "SillyTavern角色卡里的talkativeness是干什么的？depth_prompt呢？post_history_instructions和system_prompt有什么区别？能帮我看看我的角色卡应该怎么设置这些吗？",
+      "expected_output": "解释了这三个高级功能的含义、调参方法和适用场景。在解释时主动推荐了合适的设置值。",
+      "files": []
+    }
+  ]
+}
